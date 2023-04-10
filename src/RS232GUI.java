@@ -1,13 +1,16 @@
+// jSerialCom imports
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-
+// ui design imports
+import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
+// io imports
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -26,6 +29,14 @@ public class RS232GUI {
 	}
 
 	private void createAndShowGUI() {
+
+		// Set the FlatLaf look and feel
+		try {
+			UIManager.setLookAndFeel(new FlatLightLaf());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		// Create the main window
 		JFrame frame = new JFrame("RS232 GUI");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
