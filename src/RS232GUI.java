@@ -29,24 +29,45 @@ public class RS232GUI {
 		// Create the main window
 		JFrame frame = new JFrame("RS232 GUI");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
+		Container contentPane = frame.getContentPane();
+		contentPane.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		// Create the port panel
+		JPanel portPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		selectedCOMPortLabel = new JLabel("Selected COM Port: N/A");
+		portPanel.add(selectedCOMPortLabel);
+		JButton refreshButton = new JButton("Refresh");
+		portPanel.add(refreshButton);
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1.0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		contentPane.add(portPanel, gbc);
 
 		// Create the input panel
-		JPanel inputPanel = new JPanel(new FlowLayout());
+		JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		inputPanel.add(new JLabel("Single Command Window:"));
 		JTextField singleCommandWindowField = new JTextField(20);
 		inputPanel.add(singleCommandWindowField);
 		JButton sendButton = new JButton("Send");
 		inputPanel.add(sendButton);
-		selectedCOMPortLabel = new JLabel("Selected COM Port: N/A");
-		inputPanel.add(selectedCOMPortLabel);
-		frame.add(inputPanel, BorderLayout.NORTH);
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 1.0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		contentPane.add(inputPanel, gbc);
 
 		// Create the data communication panel
 		dataCommunicationPane = new JTextPane();
 		dataCommunicationPane.setEditable(false);
 		JScrollPane dataCommunicationScrollPane = new JScrollPane(dataCommunicationPane);
-		frame.add(dataCommunicationScrollPane, BorderLayout.CENTER);
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 1.0;
+		gbc.weighty = 1.0;
+		gbc.fill = GridBagConstraints.BOTH;
+		contentPane.add(dataCommunicationScrollPane, gbc);
 
 		// Initialize font attributes
 		receivedAttributeSet = new SimpleAttributeSet();
@@ -63,8 +84,11 @@ public class RS232GUI {
 			sendData(singleCommand + "\r");
 		});
 
+		// Refresh button listener
+		refreshButton.addActionListener(e -> detectAndInitCOMPort(9600));
+
 		// Set up the window
-		frame.setSize(800, 400);
+		frame.setSize(500, 600);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
@@ -89,6 +113,11 @@ public class RS232GUI {
 	}
 
 	private void sendData(String data) {
+		if (output == null) {
+			appendToDataCommunication("Error: COM port not initialized. Please ensure a device is connected.\n", receivedAttributeSet);
+			return;
+		}
+
 		try {
 			output.write(data.getBytes());
 			appendToDataCommunication("Sent data: " + data + "\n", sentAttributeSet);
@@ -97,6 +126,7 @@ public class RS232GUI {
 			e.printStackTrace();
 		}
 	}
+
 
 	private void appendToDataCommunication(String text, AttributeSet attributeSet) {
 		try {
@@ -108,6 +138,11 @@ public class RS232GUI {
 	}
 
 	private void detectAndInitCOMPort(int baudRate) {
+		// Close the previously opened port (if any)
+		if (serialPort != null && serialPort.isOpen()) {
+			serialPort.closePort();
+		}
+
 		SerialPort[] portList = SerialPort.getCommPorts();
 		SerialPort targetPort = null;
 
