@@ -8,8 +8,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -60,11 +58,9 @@ public class RS232GUI {
 		detectAndInitCOMPort(9600);
 
 		// Send button listener
-		sendButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String singleCommand = singleCommandWindowField.getText();
-				sendData(singleCommand + "\r");
-			}
+		sendButton.addActionListener(e -> {
+			String singleCommand = singleCommandWindowField.getText();
+			sendData(singleCommand + "\r");
 		});
 
 		// Set up the window
